@@ -38,7 +38,7 @@ jobs:
 #   - lint-dockerfile
 #   - build-app-karsajobs
 workflows:
-  continues-integration-karsajobs:
+  continues-integration-karsajobs-ui:
     jobs:
       - lint-dockerfile
       - build-app-karsajobs-ui
