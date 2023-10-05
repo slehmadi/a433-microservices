@@ -9,45 +9,51 @@ orbs:
 # Berisi tentang kumpulan jobs
 jobs:
 
-# Job 1 bernama test, dengan menggunakan docker yang berbasis image cimg/go:1.19
+# Job 1 bernama lint-dockerfile, dengan executor docker/machine yang berasal dari orb docker
 # Langkah yang dilakukan:
 #   - checkout terlebih dahulu
-#   - menjalankan perintah untuk mengetes applikasi golang
+#   - menjalankan perintah untuk menguji linting pada Dockerfile
   lint-dockerfile:
     executor: docker/machine
     steps:
       - checkout
       - run: docker run --rm --interactive hadolint/hadolint < Dockerfile
-# Job 1 bernama test, dengan menggunakan docker yang berbasis image cimg/go:1.19
+# Job 2 bernama test-app, dengan menggunakan docker yang berbasis image cimg/go:1.19
 # Langkah yang dilakukan:
 #   - checkout terlebih dahulu
 #   - menjalankan perintah untuk mengetes applikasi golang
-  test:
+  test-app:
     docker:
       - image: cimg/go:1.19
     steps:
       - checkout
       - run: go test -v -short --count=1 $(go list ./...)
 
-# Job 2 bernama build. dengan executor docker/machine yang berasal dari orb docker
+# Job 3 bernama build-app-karsajobs. dengan executor docker/machine yang berasal dari orb docker
 # Langkah yang dilakukan:
 #   - checkout
 #   - Login ke Github Package dengan password PAT berasal dari Environment Variable CircleCI Project
 #   - Mem-build docker image
 #   - Mem-push docker image ke registry Github Package
-  build-and-push:
+  build-app-karsajobs:
     executor: docker/machine
     steps:
       - checkout
-      - run: echo "$GHCR_IO_PASSWORD" | docker login ghcr.io --username slehmadi --password-stdin
+      - run: echo "$PAT" | docker login ghcr.io --username slehmadi --password-stdin
       - run: docker build -t ghcr.io/slehmadi/karsajobs:latest .
       - run: docker push ghcr.io/slehmadi/karsajobs:latest
 
-# Alur kerja dari pipeline
+# Alur kerja dari pipeline dan diberi nama continues-integration-karsajobs
+# Workflow ini akan menjalankan tugas-tugas secara berurutan:
+#   - lint-dockerfile
+#   - test-app
+#   - build-app-karsajobs
 workflows:
-  continues-integration:
+  continues-integration-karsajobs:
     jobs:
       - lint-dockerfile
+      - test-app
+      - build-app-karsajobs
 
 
           
