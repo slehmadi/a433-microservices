@@ -1,13 +1,31 @@
+# Versi dari CircleCI config
 version: '2.1'
+
+# Berisi orbs yang merupakan kumpulan-kumpulan jobs, command, executor, dsb
+# Mengambil kumpulan tersebut dari circleci/docker@2.4.0 dengan nama docker
 orbs:
   docker: circleci/docker@2.4.0
+
+# Berisi tentang kumpulan jobs
 jobs:
+
+# Job 1 bernama test, dengan menggunakan docker yang berbasis image cimg/go:1.19
+# Langkah yang dilakukan:
+#   - checkout terlebih dahulu
+#   - menjalankan perintah untuk mengetes applikasi golang
   test:
     docker:
       - image: cimg/go:1.19
     steps:
       - checkout
       - run: go test -v -short --count=1 $(go list ./...)
+
+# Job 2 bernama build. dengan executor docker/machine yang berasal dari orb docker
+# Langkah yang dilakukan:
+#   - checkout
+#   - Login ke Github Package dengan password PAT berasal dari Environment Variable CircleCI Project
+#   - Mem-build docker image
+#   - Mem-push docker image ke registry Github Package
   build-and-push:
     executor: docker/machine
     steps:
@@ -15,15 +33,30 @@ jobs:
       - run: echo "$PAT" | docker login ghcr.io --username slehmadi --password-stdin
       - run: docker build -t ghcr.io/slehmadi/karsajobs:latest .
       - run: docker push ghcr.io/slehmadi/karsajobs:latest
+  
+  lint-dockerfile:
+    executor: docker/hadolint
+    dockerfiles: Dockferfile
+    ignore-rules: DL4005,DL30008
+    trusted-registries: docker.io,ghcr.io
 
-    
+# Alur kerja dari pipeline
 workflows:
+  continues-integration:
+    jobs:
+      - docker/hadolint:
+            dockerfiles: Dockerfile
+            ignore-rules: DL4005,DL3008
+            trusted-registries: docker.io,ghcr.io
+
   lint-dockerfile:
     jobs:
       - docker/hadolint:
           dockerfiles: Dockerfile
           ignore-rules: DL4005,DL3008
           trusted-registries: docker.io,ghcr.io
+
+# Mela
   test-app:
     jobs:
       - test
