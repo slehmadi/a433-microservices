@@ -35,10 +35,10 @@ jobs:
       - run: docker push ghcr.io/slehmadi/karsajobs:latest
   
   lint-dockerfile:
-    executor: docker/hadolint
-    dockerfiles: Dockferfile
-    ignore-rules: DL4005,DL30008
-    trusted-registries: docker.io,ghcr.io
+    executor: docker/machine
+    steps:
+      - checkout
+      - run: docker run --rm --interactive hadolint/hadolint < Dockerfile
 
 # Alur kerja dari pipeline
 workflows:
