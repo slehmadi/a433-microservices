@@ -13,6 +13,16 @@ jobs:
 # Langkah yang dilakukan:
 #   - checkout terlebih dahulu
 #   - menjalankan perintah untuk mengetes applikasi golang
+  lint-dockerfile:
+    docker:
+      - image: ubuntu-2204:2023.02.1
+    steps:
+      - checkout
+      - run: docker run --rm --interactive hadolint/hadolint < Dockerfile
+# Job 1 bernama test, dengan menggunakan docker yang berbasis image cimg/go:1.19
+# Langkah yang dilakukan:
+#   - checkout terlebih dahulu
+#   - menjalankan perintah untuk mengetes applikasi golang
   test:
     docker:
       - image: cimg/go:1.19
@@ -27,40 +37,19 @@ jobs:
 #   - Mem-build docker image
 #   - Mem-push docker image ke registry Github Package
   build-and-push:
-    executor: docker/machine
+    docker:
+      - image: ubuntu-2204:2023.02.1
     steps:
       - checkout
       - run: echo "$PAT" | docker login ghcr.io --username slehmadi --password-stdin
       - run: docker build -t ghcr.io/slehmadi/karsajobs:latest .
       - run: docker push ghcr.io/slehmadi/karsajobs:latest
-  
-  lint-dockerfile:
-    executor: docker/machine
-    steps:
-      - checkout
-      - run: docker run --rm --interactive hadolint/hadolint < Dockerfile
 
 # Alur kerja dari pipeline
 workflows:
   continues-integration:
     jobs:
-      - docker/hadolint:
-            dockerfiles: Dockerfile
-            ignore-rules: DL4005,DL3008
-            trusted-registries: docker.io,ghcr.io
+      - lint-dockerfile
 
-  lint-dockerfile:
-    jobs:
-      - docker/hadolint:
-          dockerfiles: Dockerfile
-          ignore-rules: DL4005,DL3008
-          trusted-registries: docker.io,ghcr.io
 
-# Mela
-  test-app:
-    jobs:
-      - test
-  build-app-karsajobs:
-    jobs:
-      - build-and-push
           
