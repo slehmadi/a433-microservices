@@ -30,8 +30,8 @@ jobs:
     steps:
       - checkout
       - run: echo "$PAT" | docker login ghcr.io --username slehmadi --password-stdin
-      - run: docker build -t ghcr.io/slehmadi/karsajobs:latest .
-      - run: docker push ghcr.io/slehmadi/karsajobs:latest
+      - run: docker build -t ghcr.io/slehmadi/karsajobs-ui:latest .
+      - run: docker push ghcr.io/slehmadi/karsajobs-ui:latest
 
 # Alur kerja dari pipeline dan diberi nama continues-integration-karsajobs
 # Workflow ini akan menjalankan tugas-tugas secara berurutan:
