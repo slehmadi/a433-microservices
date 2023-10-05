@@ -17,7 +17,6 @@ jobs:
     executor: docker/machine
     steps:
       - checkout
-      - run: echo $DOCKER_PASSWORD | docker login --username slehmadi --password-stdin
       - run: docker run --rm --interactive hadolint/hadolint < Dockerfile
 # Job 1 bernama test, dengan menggunakan docker yang berbasis image cimg/go:1.19
 # Langkah yang dilakukan:
