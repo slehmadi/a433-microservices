@@ -1,0 +1,46 @@
+version: '2.1'
+orbs:
+  docker: circleci/docker@2.4.0
+jobs:
+  linting:
+    - docker/hadolint:
+        dockerfiles: Dockerfile
+        executor-class: medium
+        hadolint-tag: 2.2.0-debian
+        ignore-rules: DL4005,DL3008
+        trusted-registries: docker.io,ghcr.io
+  test:
+    docker:
+      - image: cimg/go:1.19
+    steps:
+      - checkout
+      - run: go test -v -short --count=1 $(go list ./...)
+  build-and-push:
+    executor: docker/docker
+    steps:
+      - checkout
+      - setup_remote_docker
+      - docker/check:
+          registry: ghcr.io
+          docker-username: slehmadi
+          docker-password: $(PAT)
+      - docker/build:
+          image: ghcr.io/slehmadi/karsajobs
+          tag: latest
+      - docker/push:
+          image: ghcr.io/slehmadi/karsajobs
+          tag: latest
+          registry: ghcr.io
+
+    
+workflows:
+  lint-dockerfile:
+    jobs:
+      - linting
+  test-app:
+    jobs:
+      - test
+  build-app-karsajobs:
+    jobs:
+      - build-and-push
+          
