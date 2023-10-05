@@ -12,7 +12,6 @@ jobs:
     executor: docker/machine
     steps:
       - checkout
-      - setup_remote_docker
       - run: echo "$PAT" | docker login --username slehmadi --password-stdin
       - run: docker build -t ghcr.io/slehmadi/karsajobs:latest
       - run: docker push ghcr.io/slehmadi/karsajobs:latest
