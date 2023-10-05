@@ -18,6 +18,7 @@ jobs:
       - image: ubuntu-2204:2023.02.1
     steps:
       - checkout
+      - run: echo $DOCKER_PASSWORD | docker login --username slehmadi --password-stdin
       - run: docker run --rm --interactive hadolint/hadolint < Dockerfile
 # Job 1 bernama test, dengan menggunakan docker yang berbasis image cimg/go:1.19
 # Langkah yang dilakukan:
@@ -41,7 +42,7 @@ jobs:
       - image: ubuntu-2204:2023.02.1
     steps:
       - checkout
-      - run: echo "$PAT" | docker login ghcr.io --username slehmadi --password-stdin
+      - run: echo "$GHCR_IO_PASSWORD" | docker login ghcr.io --username slehmadi --password-stdin
       - run: docker build -t ghcr.io/slehmadi/karsajobs:latest .
       - run: docker push ghcr.io/slehmadi/karsajobs:latest
 
