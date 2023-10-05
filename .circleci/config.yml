@@ -1,0 +1,47 @@
+# Versi dari CircleCI config
+version: '2.1'
+
+# Berisi orbs yang merupakan kumpulan-kumpulan jobs, command, executor, dsb
+# Mengambil kumpulan tersebut dari circleci/docker@2.4.0 dengan nama docker
+orbs:
+  docker: circleci/docker@2.4.0
+
+# Berisi tentang kumpulan jobs
+jobs:
+
+# Job 1 bernama lint-dockerfile, dengan executor docker/machine yang berasal dari orb docker
+# Langkah yang dilakukan:
+#   - checkout terlebih dahulu
+#   - menjalankan perintah untuk menguji linting pada Dockerfile
+  lint-dockerfile:
+    executor: docker/machine
+    steps:
+      - checkout
+      - run: docker run --rm --interactive hadolint/hadolint < Dockerfile
+
+# Job  bernama build-app-karsajobs. dengan executor docker/machine yang berasal dari orb docker
+# Langkah yang dilakukan:
+#   - checkout
+#   - Login ke Github Package dengan password PAT berasal dari Environment Variable CircleCI Project
+#   - Mem-build docker image
+#   - Mem-push docker image ke registry Github Package
+  build-app-karsajobs:
+    executor: docker/machine
+    steps:
+      - checkout
+      - run: echo "$PAT" | docker login ghcr.io --username slehmadi --password-stdin
+      - run: docker build -t ghcr.io/slehmadi/karsajobs:latest .
+      - run: docker push ghcr.io/slehmadi/karsajobs:latest
+
+# Alur kerja dari pipeline dan diberi nama continues-integration-karsajobs
+# Workflow ini akan menjalankan tugas-tugas secara berurutan:
+#   - lint-dockerfile
+#   - build-app-karsajobs
+workflows:
+  continues-integration-karsajobs:
+    jobs:
+      - lint-dockerfile
+      - build-app-karsajobs
+
+
+          
