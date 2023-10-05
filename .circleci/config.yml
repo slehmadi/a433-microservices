@@ -12,7 +12,7 @@ jobs:
     executor: docker/machine
     steps:
       - checkout
-      - run: echo "$PAT" | docker login --username slehmadi --password-stdin
+      - run: echo "$PAT" | docker login ghcr.io --username slehmadi --password-stdin
       - run: docker build -t ghcr.io/slehmadi/karsajobs:latest
       - run: docker push ghcr.io/slehmadi/karsajobs:latest
 
