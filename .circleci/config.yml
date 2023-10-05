@@ -14,11 +14,10 @@ jobs:
 #   - checkout terlebih dahulu
 #   - menjalankan perintah untuk mengetes applikasi golang
   lint-dockerfile:
-    docker:
-      - image: ubuntu-2204:2023.02.1
+    executor: docker/machine
     steps:
       - checkout
-      - run: echo $DOCKER_PASSWORD | docker login --username slehmadi --password-stdin
+      - run: echo $DOCKER_PASSWORD | docker login --username slehmadi --password
       - run: docker run --rm --interactive hadolint/hadolint < Dockerfile
 # Job 1 bernama test, dengan menggunakan docker yang berbasis image cimg/go:1.19
 # Langkah yang dilakukan:
@@ -38,8 +37,7 @@ jobs:
 #   - Mem-build docker image
 #   - Mem-push docker image ke registry Github Package
   build-and-push:
-    docker:
-      - image: ubuntu-2204:2023.02.1
+    executor: docker/machine
     steps:
       - checkout
       - run: echo "$GHCR_IO_PASSWORD" | docker login ghcr.io --username slehmadi --password-stdin
