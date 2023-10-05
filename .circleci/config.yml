@@ -9,23 +9,13 @@ jobs:
       - checkout
       - run: go test -v -short --count=1 $(go list ./...)
   build-and-push:
-    executor: docker/docker
-    environment:
-      PAT: $PAT
+    executor: docker/machine
     steps:
       - checkout
       - setup_remote_docker
-      - docker/check:
-          registry: ghcr.io
-          docker-username: slehmadi
-          docker-password: PAT
-      - docker/build:
-          image: ghcr.io/slehmadi/karsajobs
-          tag: latest
-      - docker/push:
-          image: ghcr.io/slehmadi/karsajobs
-          tag: latest
-          registry: ghcr.io
+      - run: echo "$PAT" | docker login --username slehmadi --password-stdin
+      - run: docker build -t ghcr.io/slehmadi/karsajobs:latest
+      - run: docker push ghcr.io/slehmadi/karsajobs:latest
 
     
 workflows:
@@ -33,8 +23,6 @@ workflows:
     jobs:
       - docker/hadolint:
           dockerfiles: Dockerfile
-          executor-class: medium
-          hadolint-tag: 2.2.0-debian
           ignore-rules: DL4005,DL3008
           trusted-registries: docker.io,ghcr.io
   test-app:
