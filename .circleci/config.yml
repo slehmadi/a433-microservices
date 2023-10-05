@@ -10,13 +10,15 @@ jobs:
       - run: go test -v -short --count=1 $(go list ./...)
   build-and-push:
     executor: docker/docker
+    environment:
+      PAT: $PAT
     steps:
       - checkout
       - setup_remote_docker
       - docker/check:
           registry: ghcr.io
           docker-username: slehmadi
-          docker-password: $(PAT)
+          docker-password: PAT
       - docker/build:
           image: ghcr.io/slehmadi/karsajobs
           tag: latest
